@@ -19,6 +19,8 @@ namespace DashClockPebbleBatteryExtension
 	           Theme = "@android:style/Theme.Holo.Light.NoActionBar")]
 	public class SettingsActivity : Activity
 	{
+		const string PbwLocation = "https://neteril.org/pebble/companion_watchapp.pbw";
+
 		protected override void OnCreate (Bundle bundle)
 		{
 			base.OnCreate (bundle);
@@ -26,7 +28,9 @@ namespace DashClockPebbleBatteryExtension
 
 			var btn = FindViewById<Button> (Resource.Id.watchAppBtn);
 			btn.Click += (sender, e) => {
-
+				var uri = Android.Net.Uri.Parse (PbwLocation);
+				var intent = new Intent (Intent.ActionView, uri);
+				StartActivity (intent);
 			};
 		}
 	}
