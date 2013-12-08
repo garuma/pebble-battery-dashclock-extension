@@ -18,6 +18,11 @@ using Log = Android.Util.Log;
 
 namespace DashClockPebbleBatteryExtension
 {
+	struct PebbleBatteryStatus {
+		public float Percentage;
+		public bool IsCharging;
+	}
+
 	[Service (Label = "Pebble Battery Extension",
 	          Permission = "com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA",
 	          Icon = "@drawable/ic_dash_icon")]
@@ -37,7 +42,7 @@ namespace DashClockPebbleBatteryExtension
 		{
 			if (isReconnect)
 				return;
-			batteryReceiver = new BatteryDataReceiver (this, Uuid);
+			batteryReceiver = new BatteryDataReceiver (Uuid);
 			batteryBroadcast = PebbleKit.RegisterReceivedDataHandler (this, batteryReceiver);
 		}
 
@@ -53,23 +58,28 @@ namespace DashClockPebbleBatteryExtension
 			if (!PebbleKit.IsWatchConnected (this))
 				data.Visible (false);
 			else {
-				var battery = await GetWatchBatteryLevel ();
-				data.Visible (true)
-					.Icon (Resource.Drawable.ic_dash_icon)
-					.Status (battery.ToString ("P1"));
+				try {
+					var b = await GetWatchBatteryLevel ();
+					var status = b.IsCharging ? string.Format ("Charging ({0:P1})", b.Percentage) : b.Percentage.ToString ("P1");
+					data.Visible (true)
+						.Icon (Resource.Drawable.ic_dash_icon)
+						.Status (status);
+				} catch (TaskCanceledException) {
+					return;
+				}
 			}
 
 			PublishUpdate (data);
 		}
 
-		async Task<float> GetWatchBatteryLevel ()
+		async Task<PebbleBatteryStatus> GetWatchBatteryLevel ()
 		{
-			var req = batteryReceiver.GetBatteryLevelAsync ();
+			var req = batteryReceiver.GetBatteryStatusAsync ();
 			var uuid = Java.Util.UUID.FromString (Uuid);
 			PebbleKit.StartAppOnPebble (this, uuid);
 			Log.Info (Tag, "Started pebble app");
 			var r = await req;
-			Log.Info (Tag, "Received value: " + r);
+			Log.Info (Tag, "Received value: " + r.Percentage);
 			PebbleKit.CloseAppOnPebble (this, uuid);
 			Log.Info (Tag, "Closed pebble app");
 			return r;
@@ -78,21 +88,19 @@ namespace DashClockPebbleBatteryExtension
 
 	class BatteryDataReceiver : PebbleKit.PebbleDataReceiver
 	{
-		Context context;
-		TaskCompletionSource<float> currentBatteryRequest;
+		TaskCompletionSource<PebbleBatteryStatus> currentBatteryRequest;
 
-		public BatteryDataReceiver (Context context, string uuid) : base (Java.Util.UUID.FromString (uuid))
+		public BatteryDataReceiver (string uuid) : base (Java.Util.UUID.FromString (uuid))
 		{
-			this.context = context;
 		}
 
-		public Task<float> GetBatteryLevelAsync ()
+		public Task<PebbleBatteryStatus> GetBatteryStatusAsync ()
 		{
 			if (currentBatteryRequest != null) {
 				currentBatteryRequest.TrySetCanceled ();
 				currentBatteryRequest = null;
 			}
-			currentBatteryRequest = new TaskCompletionSource<float> ();
+			currentBatteryRequest = new TaskCompletionSource<PebbleBatteryStatus> ();
 			return currentBatteryRequest.Task;
 		}
 
@@ -101,7 +109,14 @@ namespace DashClockPebbleBatteryExtension
 			if (currentBatteryRequest == null)
 				return;
 			Log.Info ("PebbleBatDashClockReceiver", "Received data, tid: " + transactionID);
-			currentBatteryRequest.TrySetResult (dict.GetInteger (0xba77).FloatValue () / 100f);
+			var level = dict.GetInteger (0xba77).FloatValue () / 100f;
+			Log.Info ("PebbleBatDashClockReceiver", "\tLevel: " + level);
+			var isCharging = dict.GetInteger (0xba1e).IntValue () == 1;
+			Log.Info ("PebbleBatDashClockReceiver", "\tCharging status: " + isCharging);
+			currentBatteryRequest.TrySetResult (new PebbleBatteryStatus {
+				IsCharging = isCharging,
+				Percentage = level
+			});
 			PebbleKit.SendAckToPebble (context, transactionID);
 		}
 	}
