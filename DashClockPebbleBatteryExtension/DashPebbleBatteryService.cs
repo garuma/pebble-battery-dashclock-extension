@@ -55,11 +55,13 @@ namespace DashClockPebbleBatteryExtension
 
 		protected async override void OnUpdateData (int reason)
 		{
+			SetUpdateWhenScreenOn (false);
 			var data = new ExtensionData ();
 			data.Visible (true).Icon (Resource.Drawable.ic_dash_icon);
-			if (!PebbleKit.IsWatchConnected (this))
-				data.Status ("Watch not connected");
-			else {
+			if (!PebbleKit.IsWatchConnected (this)) {
+				SetUpdateWhenScreenOn (true);
+				data.Status ("disconnected");
+			} else {
 				var source = new CancellationTokenSource ();
 				source.CancelAfter (TimeSpan.FromSeconds (10));
 				try {
@@ -67,9 +69,10 @@ namespace DashClockPebbleBatteryExtension
 					var status = b.IsCharging ? string.Format ("Charging ({0:P1})", b.Percentage) : b.Percentage.ToString ("P1");
 					data.Status (status);
 				} catch (TaskCanceledException) {
-					if (source.IsCancellationRequested)
-						data.Status ("Watch unreachable");
-					else
+					if (source.IsCancellationRequested) {
+						data.Status ("unreachable");
+						SetUpdateWhenScreenOn (true);
+					} else
 						return;
 				}
 			}
