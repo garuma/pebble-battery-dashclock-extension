@@ -1,0 +1,24 @@
+{
+  "uuid": "0e6ed8f2-995c-4df9-853e-1e2768a14446",
+  "shortName": "DashClock Battery integration",
+  "longName": "Pebble battery status integration with DashClock",
+  "companyName": "Neteril",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": [
+		{ 
+			"type": "png",
+			"name": "ICON",
+			"file": "images/icon.png",
+			"menuIcon": true
+		}
+	]
+  }
+}

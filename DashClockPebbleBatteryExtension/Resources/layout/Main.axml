@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <ImageView
+            android:src="@drawable/ic_banner"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:id="@+id/imageView1"
+            android:layout_gravity="center" />
+        <TextView
+            android:text="DashClock Pebble Battery Extension"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textColor="#ff525252"
+            android:padding="8dp" />
+        <TextView
+            android:text="To setup the extension, press the button below to install the companion watchapp."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView2"
+            android:gravity="center"
+            android:padding="8dp"
+            android:textSize="14sp" />
+        <Button
+            android:text="Install Watchapp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/watchAppBtn"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:drawableLeft="@drawable/ic_pebble"
+            android:layout_gravity="center"
+            android:drawablePadding="16dp"
+            android:background="@drawable/button_bg"
+            android:padding="8dp" />
+    </LinearLayout>
+</FrameLayout>
