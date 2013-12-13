@@ -60,17 +60,20 @@ namespace DashClockPebbleBatteryExtension
 			data.Visible (true).Icon (Resource.Drawable.ic_dash_icon);
 			if (!PebbleKit.IsWatchConnected (this)) {
 				SetUpdateWhenScreenOn (true);
-				data.Status ("disconnected");
+				data.Status ("❗");
+				data.ExpandedTitle ("Disconnected");
 			} else {
 				var source = new CancellationTokenSource ();
 				source.CancelAfter (TimeSpan.FromSeconds (10));
 				try {
 					var b = await GetWatchBatteryLevelAsync (source.Token);
-					var status = b.IsCharging ? string.Format ("Charging ({0:P1})", b.Percentage) : b.Percentage.ToString ("P1");
+					var status = b.IsCharging ? " ⚡ (" + b.Percentage.ToString ("P0") + ")" : b.Percentage.ToString ("P0");
 					data.Status (status);
+					data.ExpandedTitle (string.Format ("Charging ({0:P0})", b.Percentage));
 				} catch (TaskCanceledException) {
 					if (source.IsCancellationRequested) {
-						data.Status ("unreachable");
+						data.Status ("⚠");
+						data.ExpandedTitle ("Unreachable");
 						SetUpdateWhenScreenOn (true);
 					} else
 						return;
