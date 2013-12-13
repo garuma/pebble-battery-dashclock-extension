@@ -2,32 +2,33 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background">
+    android:background="@drawable/background_error"
+    android:id="@+id/backview">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center">
         <ImageView
-            android:src="@drawable/ic_banner"
+            android:src="@drawable/ic_banner_error"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:id="@+id/imageView1"
+            android:id="@+id/banner"
             android:layout_gravity="center" />
         <TextView
             android:text="DashClock Pebble Battery Extension"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView1"
+            android:id="@+id/title"
             android:gravity="center"
             android:textSize="18sp"
             android:textColor="#ff525252"
             android:padding="8dp" />
         <TextView
-            android:text="To setup the extension, press the button below to install the companion watchapp."
+            android:text="@string/wrong_sdk_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView2"
+            android:id="@+id/subtitle"
             android:gravity="center"
             android:padding="8dp"
             android:textSize="14sp" />

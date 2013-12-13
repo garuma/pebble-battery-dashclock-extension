@@ -33,6 +33,23 @@ namespace DashClockPebbleBatteryExtension
 				StartActivity (intent);
 			};
 		}
+
+		protected override void OnStart ()
+		{
+			base.OnStart ();
+			var fwVersion = PebbleKit.GetWatchFWVersion (this);
+			if (fwVersion != null && fwVersion.Major == 1) {
+				FindViewById (Resource.Id.backview).SetBackgroundResource (Resource.Drawable.background_error);
+				FindViewById (Resource.Id.watchAppBtn).Visibility = ViewStates.Invisible;
+				FindViewById<TextView> (Resource.Id.subtitle).SetText (Resource.String.wrong_sdk_message);
+				FindViewById<ImageView> (Resource.Id.banner).SetImageResource (Resource.Drawable.ic_banner_error);
+			} else {
+				FindViewById (Resource.Id.backview).SetBackgroundResource (Resource.Drawable.background);
+				FindViewById (Resource.Id.watchAppBtn).Visibility = ViewStates.Visible;
+				FindViewById<TextView> (Resource.Id.subtitle).SetText (Resource.String.normal_message);
+				FindViewById<ImageView> (Resource.Id.banner).SetImageResource (Resource.Drawable.ic_banner);
+			}
+		}
 	}
 }
 

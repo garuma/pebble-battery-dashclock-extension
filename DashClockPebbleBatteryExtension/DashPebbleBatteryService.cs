@@ -57,6 +57,13 @@ namespace DashClockPebbleBatteryExtension
 		{
 			SetUpdateWhenScreenOn (false);
 			var data = new ExtensionData ();
+
+			var fwVersion = PebbleKit.GetWatchFWVersion (this);
+			if (fwVersion != null && fwVersion.Major == 1) {
+				PublishUpdate (data.Visible (false));
+				return;
+			}
+
 			data.Visible (true).Icon (Resource.Drawable.ic_dash_icon);
 			if (!PebbleKit.IsWatchConnected (this)) {
 				SetUpdateWhenScreenOn (true);
