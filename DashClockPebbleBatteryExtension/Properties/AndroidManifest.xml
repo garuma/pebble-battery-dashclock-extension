@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="org.neteril.DashClockPebbleBatteryExtension">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.0.1" package="org.neteril.DashClockPebbleBatteryExtension" android:versionCode="2">
 	<uses-sdk />
-	<application android:label="DashClockPebbleBatteryExtension" android:icon="@drawable/icon">
+	<application android:icon="@drawable/icon" android:label="Pebble Battery for DashClock">
 	</application>
 </manifest>
