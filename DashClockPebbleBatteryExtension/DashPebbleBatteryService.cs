@@ -76,7 +76,8 @@ namespace DashClockPebbleBatteryExtension
 					var b = await GetWatchBatteryLevelAsync (source.Token);
 					var status = b.IsCharging ? " ⚡ (" + b.Percentage.ToString ("P0") + ")" : b.Percentage.ToString ("P0");
 					data.Status (status);
-					data.ExpandedTitle (string.Format ("Charging ({0:P0})", b.Percentage));
+					var title = (b.IsCharging ? "Charging" : "Discharging") + string.Format (" ({0:P0})", b.Percentage);
+					data.ExpandedTitle (title);
 				} catch (TaskCanceledException) {
 					if (source.IsCancellationRequested) {
 						data.Status ("⚠");
