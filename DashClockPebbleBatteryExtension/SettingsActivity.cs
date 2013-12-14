@@ -20,6 +20,10 @@ namespace DashClockPebbleBatteryExtension
 	public class SettingsActivity : Activity
 	{
 		const string PbwLocation = "https://neteril.org/pebble/companion_watchapp.pbw";
+		const string Sdk2Location = "https://developer.getpebble.com/2/getting-started/";
+		const int WrongFirmwareVersion = 1;
+
+		PebbleKit.FirmwareVersionInfo fwVersion;
 
 		protected override void OnCreate (Bundle bundle)
 		{
@@ -27,27 +31,31 @@ namespace DashClockPebbleBatteryExtension
 			SetContentView (Resource.Layout.Main);
 
 			var btn = FindViewById<Button> (Resource.Id.watchAppBtn);
-			btn.Click += (sender, e) => {
-				var uri = Android.Net.Uri.Parse (PbwLocation);
-				var intent = new Intent (Intent.ActionView, uri);
-				StartActivity (intent);
-			};
+			btn.Click += HandleClick;
+		}
+
+		void HandleClick (object sender, EventArgs e)
+		{
+			var uri = Android.Net.Uri.Parse (fwVersion != null && fwVersion.Major == WrongFirmwareVersion ? Sdk2Location : PbwLocation);
+			var intent = new Intent (Intent.ActionView, uri);
+			StartActivity (intent);
 		}
 
 		protected override void OnStart ()
 		{
 			base.OnStart ();
-			var fwVersion = PebbleKit.GetWatchFWVersion (this);
-			if (fwVersion != null && fwVersion.Major == 1) {
+			fwVersion = PebbleKit.GetWatchFWVersion (this);
+
+			if (fwVersion != null && fwVersion.Major == WrongFirmwareVersion) {
 				FindViewById (Resource.Id.backview).SetBackgroundResource (Resource.Drawable.background_error);
-				FindViewById (Resource.Id.watchAppBtn).Visibility = ViewStates.Invisible;
 				FindViewById<TextView> (Resource.Id.subtitle).SetText (Resource.String.wrong_sdk_message);
 				FindViewById<ImageView> (Resource.Id.banner).SetImageResource (Resource.Drawable.ic_banner_error);
+				FindViewById<Button> (Resource.Id.watchAppBtn).SetText (Resource.String.button_install_sdk_two);
 			} else {
 				FindViewById (Resource.Id.backview).SetBackgroundResource (Resource.Drawable.background);
-				FindViewById (Resource.Id.watchAppBtn).Visibility = ViewStates.Visible;
 				FindViewById<TextView> (Resource.Id.subtitle).SetText (Resource.String.normal_message);
 				FindViewById<ImageView> (Resource.Id.banner).SetImageResource (Resource.Drawable.ic_banner);
+				FindViewById<Button> (Resource.Id.watchAppBtn).SetText (Resource.String.button_install_watchapp);
 			}
 		}
 	}

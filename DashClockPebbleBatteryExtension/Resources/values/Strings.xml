@@ -2,5 +2,7 @@
 <resources>
 	<string name="app_name">DashClockPebbleBatteryExtension</string>
 	<string name="normal_message">To setup the extension, press the button below to install the companion watchapp.	</string>
-	<string name="wrong_sdk_message">This extension requires version 2 of the Pebble watch firmware (currently in beta). Check getpebble.com for installation instructions.</string>
+	<string name="wrong_sdk_message">This extension requires version 2 of the Pebble firmware. Click button below for more information.</string>
+	<string name="button_install_watchapp">Install Watchapp</string>
+	<string name="button_install_sdk_two">Go to Pebble Website</string>
 </resources>

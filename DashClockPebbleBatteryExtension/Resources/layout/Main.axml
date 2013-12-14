@@ -33,7 +33,7 @@
             android:padding="8dp"
             android:textSize="14sp" />
         <Button
-            android:text="Install Watchapp"
+            android:text="@string/button_install_watchapp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/watchAppBtn"
