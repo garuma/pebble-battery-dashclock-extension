@@ -39,12 +39,13 @@ namespace DashClockPebbleBatteryExtension
 		BatteryDataReceiver batteryReceiver;
 		BroadcastReceiver batteryBroadcast;
 
-		protected override void OnInitialize (bool isReconnect)
+		public override void OnCreate ()
 		{
-			if (isReconnect)
-				return;
-			batteryReceiver = new BatteryDataReceiver (Uuid);
-			batteryBroadcast = PebbleKit.RegisterReceivedDataHandler (this, batteryReceiver);
+			base.OnCreate ();
+			if (batteryReceiver == null) {
+				batteryReceiver = new BatteryDataReceiver (Uuid);
+				batteryBroadcast = PebbleKit.RegisterReceivedDataHandler (this, batteryReceiver);
+			}
 		}
 
 		public override void OnDestroy ()
