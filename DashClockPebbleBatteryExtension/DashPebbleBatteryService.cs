@@ -85,6 +85,11 @@ namespace DashClockPebbleBatteryExtension
 						SetUpdateWhenScreenOn (true);
 					} else
 						return;
+				} catch (Exception ex) {
+					Log.Error (Tag, ex.ToString ());
+					data.Status ("❗");
+					data.ExpandedTitle ("Error");
+					SetUpdateWhenScreenOn (true);
 				}
 			}
 
@@ -96,11 +101,15 @@ namespace DashClockPebbleBatteryExtension
 			var req = batteryReceiver.GetBatteryStatusAsync (token);
 			var uuid = Java.Util.UUID.FromString (Uuid);
 			PebbleKit.StartAppOnPebble (this, uuid);
-			Log.Info (Tag, "Started pebble app");
-			var r = await req;
-			Log.Info (Tag, "Received value: " + r.Percentage);
-			PebbleKit.CloseAppOnPebble (this, uuid);
-			Log.Info (Tag, "Closed pebble app");
+			PebbleBatteryStatus r;
+			try {
+				Log.Info (Tag, "Started pebble app");
+				r = await req;
+				Log.Info (Tag, "Received value: " + r.Percentage);
+			} finally {
+				PebbleKit.CloseAppOnPebble (this, uuid);
+				Log.Info (Tag, "Closed pebble app");
+			}
 			return r;
 		}
 	}
@@ -128,20 +137,27 @@ namespace DashClockPebbleBatteryExtension
 
 		public override void ReceiveData (Context context, int transactionID, PebbleDictionary dict)
 		{
-			if (currentBatteryRequest == null)
-				return;
-			Log.Info ("PebbleBatDashClockReceiver", "Received data, tid: " + transactionID);
-			var level = dict.GetInteger (0xba77).FloatValue () / 100f;
-			Log.Info ("PebbleBatDashClockReceiver", "\tLevel: " + level);
-			var isCharging = dict.GetInteger (0xba1e).IntValue () == 1;
-			Log.Info ("PebbleBatDashClockReceiver", "\tCharging status: " + isCharging);
-			PebbleKit.SendAckToPebble (context, transactionID);
+			try {
+				PebbleKit.SendAckToPebble (context, transactionID);
+				if (currentBatteryRequest == null)
+					return;
 
-			lock (syncLock) {
-				currentBatteryRequest.TrySetResult (new PebbleBatteryStatus {
-					IsCharging = isCharging,
-					Percentage = level
-				});
+				Log.Info ("PebbleBatDashClockReceiver", "Received data, tid: " + transactionID);
+				var level = dict.GetInteger (0xba77).FloatValue () / 100f;
+				Log.Info ("PebbleBatDashClockReceiver", "\tLevel: " + level);
+				var isCharging = dict.GetInteger (0xba1e).IntValue () == 1;
+				Log.Info ("PebbleBatDashClockReceiver", "\tCharging status: " + isCharging);
+
+				lock (syncLock) {
+					currentBatteryRequest.TrySetResult (new PebbleBatteryStatus {
+						IsCharging = isCharging,
+						Percentage = level
+					});
+				}
+			} catch (Exception ex) {
+				Log.Error ("PebbleBatDashClockReceiver", ex.ToString ());
+				lock (syncLock)
+					currentBatteryRequest.TrySetException (ex);
 			}
 		}
 	}
