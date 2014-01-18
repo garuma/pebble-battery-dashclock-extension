@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace DashClockPebbleBatteryExtension
 	           Theme = "@android:style/Theme.Holo.Light.NoActionBar")]
 	public class SettingsActivity : Activity
 	{
-		const string PbwLocation = "https://neteril.org/pebble/companion_watchapp.pbw";
+		const string PbwLocation = "pebble://bundle/?addr=neteril.org&path=/pebble/companion_watchapp.pbw";
 		const string Sdk2Location = "https://developer.getpebble.com/2/getting-started/";
 		const int WrongFirmwareVersion = 1;
 
@@ -36,8 +37,13 @@ namespace DashClockPebbleBatteryExtension
 
 		void HandleClick (object sender, EventArgs e)
 		{
-			var uri = Android.Net.Uri.Parse (fwVersion != null && fwVersion.Major == WrongFirmwareVersion ? Sdk2Location : PbwLocation);
+			bool installPbw = fwVersion == null || fwVersion.Major != WrongFirmwareVersion;
+			var uri = Android.Net.Uri.Parse (installPbw ? PbwLocation : Sdk2Location);
 			var intent = new Intent (Intent.ActionView, uri);
+			if (installPbw) {
+				intent.SetFlags (ActivityFlags.GrantReadUriPermission | ActivityFlags.GrantWriteUriPermission);
+				intent.SetComponent (new ComponentName ("com.getpebble.android", "com.getpebble.android.ui.UpdateActivity"));
+			}
 			StartActivity (intent);
 		}
 
