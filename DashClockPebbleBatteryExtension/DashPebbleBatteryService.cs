@@ -38,6 +38,7 @@ namespace DashClockPebbleBatteryExtension
 
 		BatteryDataReceiver batteryReceiver;
 		BroadcastReceiver batteryBroadcast;
+		Handler handler;
 
 		public override void OnCreate ()
 		{
@@ -45,6 +46,7 @@ namespace DashClockPebbleBatteryExtension
 			if (batteryReceiver == null) {
 				batteryReceiver = new BatteryDataReceiver (Uuid);
 				batteryBroadcast = PebbleKit.RegisterReceivedDataHandler (this, batteryReceiver);
+				handler = new Handler ();
 			}
 		}
 
@@ -108,7 +110,9 @@ namespace DashClockPebbleBatteryExtension
 				r = await req;
 				Log.Info (Tag, "Received value: " + r.Percentage);
 			} finally {
-				PebbleKit.CloseAppOnPebble (this, uuid);
+				// There seem to be a race in recent version of the Pebble firmware which
+				// mean the app is left hanging around.
+				handler.PostDelayed (() => PebbleKit.CloseAppOnPebble (this, uuid), 300);
 				Log.Info (Tag, "Closed pebble app");
 			}
 			return r;
